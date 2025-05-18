@@ -24,13 +24,15 @@ public abstract class CrudController <T, D, ID extends Serializable> {
         this.typeClass = typeClass;
         this.typeDtoClass = typeDtoClass;
     }
+
     private D convertToDto(T entity) {
         return getModelMapper().map(entity, this.typeDtoClass);
     }
     private T convertToEntity(D entityDto) {
         return getModelMapper().map(entityDto, this.typeClass);
     }
-    @GetMapping //http://ip.api:port/classname  	
+
+    @GetMapping //http://ip.api:port/classname
     public ResponseEntity<List<D>> findAll() {
         return ResponseEntity.ok(
                 getService().findAll().stream().map(
@@ -38,7 +40,8 @@ public abstract class CrudController <T, D, ID extends Serializable> {
                 )
         );
     }
-    @GetMapping("page")  //http://ip.api:port/classname/page  
+
+    @GetMapping("page")  //http://ip.api:port/classname/page
     public ResponseEntity<Page<D>> findAll(
             @RequestParam int page,
             @RequestParam int size,
@@ -53,6 +56,7 @@ public abstract class CrudController <T, D, ID extends Serializable> {
                 getService().findAll(pageRequest).map(this::convertToDto)
         );
     }
+
     @GetMapping("{id}")
     public ResponseEntity<D> findOne(@PathVariable ID id) {
         T entity = getService().findOne(id);
@@ -62,6 +66,7 @@ public abstract class CrudController <T, D, ID extends Serializable> {
             return ResponseEntity.noContent().build();
         }
     }
+
     @PostMapping
     public ResponseEntity<D> create(@RequestBody @Valid D entity) {
         
@@ -69,18 +74,22 @@ public abstract class CrudController <T, D, ID extends Serializable> {
                 .body(convertToDto(getService()
                         .save(convertToEntity(entity))));
     }
+
     @PutMapping("{id}")
     public ResponseEntity<D> update(@PathVariable ID id, @RequestBody @Valid D entity) {
         return ResponseEntity.status(HttpStatus.OK).body(convertToDto(getService().save(convertToEntity(entity))));
     }
+
     @GetMapping("exists/{id}")
     public ResponseEntity<Boolean> exists(@PathVariable ID id) {
         return ResponseEntity.ok(getService().exists(id));
     }
+
     @GetMapping("count")
     public ResponseEntity<Long> count() {
         return ResponseEntity.ok(getService().count());
     }
+
     @DeleteMapping("{id}")
     public ResponseEntity<Void> delete(@PathVariable ID id) {
         getService().delete(id);
