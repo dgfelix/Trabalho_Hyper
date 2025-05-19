@@ -5,7 +5,6 @@ Criação de um Ecommerce simplificado para a Matéria de Programação Web
 ## ⚙️ Tecnologias e Ferramentas
 - **Java 21**
 - **Spring Boot**
-- **Spring Security**
 - **JPA / Hibernate**
 - **Banco de Dados**: PostgreSQL
 - **Maven**
