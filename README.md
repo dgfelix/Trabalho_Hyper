@@ -12,7 +12,7 @@ A estrutura segue princípios de **separação de responsabilidades**, **clean c
 - **Maven**
 
 ---
-## 🗂️ Estrutura do Projeto
+## 🗂️ Estrutura do Projeto (Main por enquanto)
 ```plaintext
 src/main/java/
 ├── config           -> Configurações gerais do projeto
