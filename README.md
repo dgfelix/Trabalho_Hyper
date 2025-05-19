@@ -1,5 +1,5 @@
-📌 Objetivo
-Criação de um Ecommerce simplificado para a Matéria de Programação Web
+📌 Objetivo:
+Ecommerce simplificado para a Matéria de Programação Web
 ---
 Ele oferece funcionalidades essenciais como cadastro de usuários, autenticação, listagem de produtos, realização de pedidos e formas de pagamento.
 A estrutura segue princípios de **separação de responsabilidades**, **clean code** e uma organização em camadas.
