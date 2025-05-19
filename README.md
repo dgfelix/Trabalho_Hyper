@@ -41,11 +41,11 @@ src/main/java/
 
 🧱 Principais Entidades (model)
 
-User – Representa o usuário da aplicação.
-Address – Endereço associado a um usuário.
-Category – Categoria de produto.
-Product – Produto disponível para venda.
-Order – Pedido realizado por um usuário.
-ItensOrder – Itens de um pedido.
-ProductOrder – Relação entre produtos e pedidos.
-FormaPgto – Formas de pagamento disponíveis.
+User: Representa o usuário da aplicação
+Address: Endereço associado a um usuário
+Category: Categoria de produto
+Product: Produto disponível para venda
+Order: Pedido realizado por um usuário
+ItensOrder: Itens de um pedido
+ProductOrder: Relação entre produtos e pedidos
+FormaPgto: Formas de pagamento disponíveis
