@@ -15,7 +15,6 @@ A estrutura segue princípios de **separação de responsabilidades**, **clean c
 
 ## 🗂️ Estrutura do Projeto
 
-```plaintext
 src/main/java/
 ├── config           -> Configurações gerais do projeto
 ├── controller       -> Controllers CRUD da aplicação
@@ -28,6 +27,7 @@ src/main/java/
 ├── shared           -> Utilitários e classes auxiliares
 └── ServerApplication.java -> Classe principal da aplicação Spring Boot
 
+📁 Separações da estrutura do projeto 
 
 - **Controller**: Recebe requisições HTTP e coordena a entrada/saída de dados (DTOs).
 - **DTO**: Representa os dados que trafegam entre a API e o cliente. Nunca expõe diretamente as entidades.
