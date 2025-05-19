@@ -12,9 +12,8 @@ A estrutura segue princípios de **separação de responsabilidades**, **clean c
 - **Maven**
 
 ---
-
 ## 🗂️ Estrutura do Projeto
-
+```plaintext
 src/main/java/
 ├── config           -> Configurações gerais do projeto
 ├── controller       -> Controllers CRUD da aplicação
@@ -26,8 +25,9 @@ src/main/java/
 ├── service          -> Regras de negócio
 ├── shared           -> Utilitários e classes auxiliares
 └── ServerApplication.java -> Classe principal da aplicação Spring Boot
+```
 
-📁 Separações da estrutura do projeto 
+📁 Separações da estrutura do projeto (Pastas Main)
 
 - **Controller**: Recebe requisições HTTP e coordena a entrada/saída de dados (DTOs).
 - **DTO**: Representa os dados que trafegam entre a API e o cliente. Nunca expõe diretamente as entidades.
@@ -40,6 +40,7 @@ src/main/java/
 - **Config**: Beans e configurações gerais da aplicação.
 
 🧱 Principais Entidades (model)
+
 User – Representa o usuário da aplicação.
 Address – Endereço associado a um usuário.
 Category – Categoria de produto.
