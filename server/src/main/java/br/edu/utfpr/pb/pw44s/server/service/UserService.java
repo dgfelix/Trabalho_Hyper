@@ -5,6 +5,8 @@ import br.edu.utfpr.pb.pw44s.server.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserService {
 
@@ -20,4 +22,9 @@ public class UserService {
         user.setPassword( bCryptPasswordEncoder.encode(user.getPassword()) );
         return userRepository.save(user);
     }
+
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
+
 }

@@ -17,6 +17,7 @@ public class OrderServiceImpl extends CrudServiceImpl<Order, Long> implements IO
 
     }
 
+
     @Override
     protected JpaRepository<Order, Long> getRepository() {
         return this.orderRepository;

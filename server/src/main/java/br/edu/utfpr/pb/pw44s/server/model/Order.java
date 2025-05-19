@@ -24,4 +24,10 @@ public class Order {
     @OneToOne
     @JoinColumn(name = "address_id", referencedColumnName = "id")
     private Address address;
+
+    private Double valorInicial;
+
+    private Double desconto;
+
+    private Double valorFinal;
 }

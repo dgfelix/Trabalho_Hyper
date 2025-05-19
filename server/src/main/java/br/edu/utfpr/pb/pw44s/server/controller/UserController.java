@@ -9,12 +9,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -40,5 +42,12 @@ public class UserController {
         response.setMessage("User created");
         return response;
     }
-    
+
+    @GetMapping("findAll")
+    public ResponseEntity<List<User>> getAllUsers() {
+
+        return new ResponseEntity<>(userService.findAll(), HttpStatus.OK);
+
+    }
+
 }
