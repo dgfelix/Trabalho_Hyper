@@ -25,15 +25,13 @@ public class Order {
     @JoinColumn(name = "address_id", referencedColumnName = "id")
     private Address address;
 
-    @ManyToOne
-    @JoinColumn(name = "pgto_id", referencedColumnName = "id")
-    private FormaPgto formaPgto;
-
     private Double valorInicial;
 
     private Double desconto;
 
     private Double valorFinal;
 
-
+    @ManyToOne
+    @JoinColumn(name = "pgto_id", referencedColumnName = "id")
+    private FormaPgto formaPgto;
 }

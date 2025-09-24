@@ -7,7 +7,7 @@ import lombok.*;
 
 
 @Entity
-@Table(name = "tb_formaPgto")
+@Table(name = "tb_forma_pgto")
 @Getter
 @Setter
 @NoArgsConstructor

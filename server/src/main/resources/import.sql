@@ -19,4 +19,4 @@ INSERT INTO tb_user(display_name, username, password) VALUES ('Teste', 'test','$
 INSERT INTO tb_user(display_name, username, password) VALUES ('Teste1', 'test1','123');
 
 
-INSERT into tb_formaPgto(type, description) VALUES ('PIX', 'pagamento pix');
+INSERT into tb_forma_pgto(type, description) VALUES ('PIX', 'pagamento pix');

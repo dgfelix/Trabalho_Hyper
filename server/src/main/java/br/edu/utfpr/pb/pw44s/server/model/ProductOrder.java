@@ -25,12 +25,12 @@ public class ProductOrder {
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product product;
 
-
-
     private Long valorUnitario;
 
     private Integer quantidade;
 
     private Double valorTotal;
+
+
 
 }
