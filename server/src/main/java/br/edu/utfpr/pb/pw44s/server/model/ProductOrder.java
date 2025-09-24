@@ -20,25 +20,17 @@ public class ProductOrder {
     @JoinColumn(name = "order_id", referencedColumnName = "id")
     private Order order;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
 
     @ManyToOne
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product product;
 
-    @ManyToOne
-    @JoinColumn(name = "pgto_id", referencedColumnName = "id")
-    private FormaPgto formaPgto;
 
 
+    private Long valorUnitario;
 
+    private Integer quantidade;
 
-    private Long ValorUnitario;
-
-    private Integer Quantidade;
-
-    private Double ValorTotal;
+    private Double valorTotal;
 
 }

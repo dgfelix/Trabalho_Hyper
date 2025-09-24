@@ -3,10 +3,14 @@ package br.edu.utfpr.pb.pw44s.server.controller;
 
 import br.edu.utfpr.pb.pw44s.server.model.Address;
 import br.edu.utfpr.pb.pw44s.server.model.Order;
+import br.edu.utfpr.pb.pw44s.server.model.User;
 import br.edu.utfpr.pb.pw44s.server.service.IOrderService;
+import br.edu.utfpr.pb.pw44s.server.service.IUserService;
+import br.edu.utfpr.pb.pw44s.server.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,17 +24,25 @@ public class OrderController {
 
     private final IOrderService iOrderService;
 
+    private final IUserService iUserService;
 
-    public OrderController(IOrderService iOrderService, ModelMapper modelMapper) {
+
+    public OrderController(IOrderService iOrderService, ModelMapper modelMapper,  IUserService iUserService) {
         this.iOrderService = iOrderService;
         this.modelMapper = modelMapper;
+        this.iUserService = iUserService;
 
     }
 
 
     @PostMapping
     public ResponseEntity<Order> createOrder(@RequestBody Order order) {
-        Order savedOrder = iOrderService.save(order);
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = iUserService.findByUsername(username);
+        Order newOrder = modelMapper.map(order, Order.class);
+        newOrder.setUser(user);
+
+        Order savedOrder = iOrderService.save(newOrder);
         return new ResponseEntity<>(savedOrder, HttpStatus.CREATED);
 
     }

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class UserService {
+public class UserService implements IUserService{
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -26,5 +26,8 @@ public class UserService {
     public List<User> findAll() {
         return userRepository.findAll();
     }
+
+
+    public User findByUsername(String username) {return userRepository.findByUsername(username);}
 
 }
