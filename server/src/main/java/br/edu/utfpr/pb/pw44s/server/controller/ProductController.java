@@ -5,6 +5,7 @@ import br.edu.utfpr.pb.pw44s.server.model.Product;
 import br.edu.utfpr.pb.pw44s.server.service.ICrudService;
 import br.edu.utfpr.pb.pw44s.server.service.IProductService;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -28,5 +29,19 @@ public class ProductController extends CrudController<Product, ProductDTO, Long>
     @Override
     public ModelMapper getModelMapper() {
         return modelMapper;
+    }
+
+
+    @Override
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductDTO> findOne(@PathVariable Long id) {
+        Product product = productService.findOne(id);
+
+        if (product == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        ProductDTO productDTO = modelMapper.map(product, ProductDTO.class);
+        return ResponseEntity.ok(productDTO);
     }
 }

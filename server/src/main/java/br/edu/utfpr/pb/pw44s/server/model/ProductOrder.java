@@ -32,5 +32,4 @@ public class ProductOrder {
     private Double valorTotal;
 
 
-
 }
