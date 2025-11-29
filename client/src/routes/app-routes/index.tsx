@@ -14,26 +14,17 @@ import {ProductView} from "@/pages/product-view";
 export function AppRoutes() {
   return (
     <Routes>
+
+
+        <Route path="login" element={<LoginPage />} />
+        <Route path="cadastro" element={<RegisterPage />} />
+
         <Route path="/" element={<Layout />}>
-            {/* public routes */}
-            <Route path="login" element={<LoginPage/>}/>
-            <Route path="register" element={<RegisterPage/>}/>
+
+            <Route  path="/products/:id"  element={<ProductFormPage  />} />
 
             {/* protected routes */}
-            <Route element={<RequireAuth/>}>
-                <Route path="/" element={<HomePage/>}/>
-                <Route path="/home" element={<HomePage/>}/>
 
-                <Route path="/categories" element={<CategoryListPage />} />
-                <Route  path="/categories/new"  element={<CategoryFormPage  />} />
-                <Route  path="/categories/:id"  element={<CategoryFormPage  />} />
-
-                <Route path="/products" element={<ProductListPage />} />
-                <Route  path="/products/new"  element={<ProductFormPage  />} />
-                <Route  path="/products/:id"  element={<ProductFormPage  />} />
-                
-                <Route path="/products/view" element={<ProductView />} />
-            </Route>
         </Route>
 
         {/* catch all */}

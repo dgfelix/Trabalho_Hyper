@@ -36,7 +36,9 @@ const signup = async (user: IUserRegister): Promise<IResponse> => {
 const login = async (user: IUserLogin) => {
     let response = {} as IResponse;
     try {
+        console.log("LOGIN ANTES", user)
         const data = await api.post("/login", user);
+        console.log(data);
         response = {
             status: 200,
             success: true,
