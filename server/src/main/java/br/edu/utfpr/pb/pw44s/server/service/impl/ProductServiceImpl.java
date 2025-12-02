@@ -5,6 +5,7 @@ import br.edu.utfpr.pb.pw44s.server.repository.ProductRepository;
 import br.edu.utfpr.pb.pw44s.server.service.IProductService;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
 public class ProductServiceImpl extends CrudServiceImpl<Product, Long>
@@ -18,5 +19,15 @@ public class ProductServiceImpl extends CrudServiceImpl<Product, Long>
     @Override
     protected JpaRepository<Product, Long> getRepository() {
         return this.productRepository;
+    }
+
+    @Override
+    public List<Product> findByCategory(Long categoryId) {
+        return productRepository.findByCategoryId(categoryId);
+    }
+
+    @Override
+    public List<Product> findByName(String name) {
+        return productRepository.findByNameContainingIgnoreCase(name);
     }
 }

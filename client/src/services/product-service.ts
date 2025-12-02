@@ -10,24 +10,24 @@ const productURL = "/products";
  * @returns - Retorna uma Promise com a resposta da API
  **/
 const save = async (product: IProduct): Promise<IResponse> => {
-    let response = {} as IResponse;
-    try {
-        const data = await api.post(productURL, product);
-        response = {
-            status: 200,
-            success: true,
-            message: "Produto salvo com sucesso!",
-            data: data.data,
-        };
-    } catch (err: any) {
-        response = {
-            status: err.response.status,
-            success: false,
-            message: "Falha ao salvar produto",
-            data: err.response.data,
-        };
-    }
-    return response;
+  let response = {} as IResponse;
+  try {
+    const data = await api.post(productURL, product);
+    response = {
+      status: 200,
+      success: true,
+      message: "Produto salvo com sucesso!",
+      data: data.data,
+    };
+  } catch (err: any) {
+    response = {
+      status: err.response.status,
+      success: false,
+      message: "Falha ao salvar produto",
+      data: err.response.data,
+    };
+  }
+  return response;
 };
 
 /**
@@ -36,24 +36,24 @@ const save = async (product: IProduct): Promise<IResponse> => {
  * com a lista de produtos
  **/
 const findAll = async (): Promise<IResponse> => {
-    let response = {} as IResponse;
-    try {
-        const data = await api.get(productURL);
-        response = {
-            status: 200,
-            success: true,
-            message: "Lista de produtos carregada com sucesso!",
-            data: data.data,
-        };
-    } catch (err: any) {
-        response = {
-            status: err.response.status,
-            success: false,
-            message: "Falha ao carregar a lista de produtos",
-            data: err.response.data,
-        };
-    }
-    return response;
+  let response = {} as IResponse;
+  try {
+    const data = await api.get(productURL);
+    response = {
+      status: 200,
+      success: true,
+      message: "Lista de produtos carregada com sucesso!",
+      data: data.data,
+    };
+  } catch (err: any) {
+    response = {
+      status: err.response.status,
+      success: false,
+      message: "Falha ao carregar a lista de produtos",
+      data: err.response.data,
+    };
+  }
+  return response;
 };
 
 /**
@@ -62,24 +62,24 @@ const findAll = async (): Promise<IResponse> => {
  * @returns - Retorna uma Promise com a resposta da API
  */
 const remove = async (id: number): Promise<IResponse> => {
-    let response = {} as IResponse;
-    try {
-        const data = await api.delete(`${productURL}/${id}`);
-        response = {
-            status: 200,
-            success: true,
-            message: "Produto removido com sucesso!",
-            data: data.data,
-        };
-    } catch (err: any) {
-        response = {
-            status: err.response.status,
-            success: false,
-            message: "Falha ao remover o produto",
-            data: err.response.data,
-        };
-    }
-    return response;
+  let response = {} as IResponse;
+  try {
+    const data = await api.delete(`${productURL}/${id}`);
+    response = {
+      status: 200,
+      success: true,
+      message: "Produto removido com sucesso!",
+      data: data.data,
+    };
+  } catch (err: any) {
+    response = {
+      status: err.response.status,
+      success: false,
+      message: "Falha ao remover o produto",
+      data: err.response.data,
+    };
+  }
+  return response;
 };
 
 /**
@@ -88,32 +88,78 @@ const remove = async (id: number): Promise<IResponse> => {
  * @returns - Retorna uma Promise com a resposta da API
  */
 const findById = async (id: number): Promise<IResponse> => {
-    let response = {} as IResponse;
-    try {
-        const data = await api.get(`${productURL}/${id}`);
-        response = {
-            status: 200,
-            success: true,
-            message: "Produto carregado com sucesso!",
-            data: data.data,
-        };
-    } catch (err: any) {
-        response = {
-            status: err.response.status,
-            success: false,
-            message: "Falha ao carregar o produto",
-            data: err.response.data,
-        };
-    }
-    return response;
+  let response = {} as IResponse;
+  try {
+    const data = await api.get(`${productURL}/${id}`);
+    response = {
+      status: 200,
+      success: true,
+      message: "Produto carregado com sucesso!",
+      data: data.data,
+    };
+  } catch (err: any) {
+    response = {
+      status: err.response.status,
+      success: false,
+      message: "Falha ao carregar o produto",
+      data: err.response.data,
+    };
+  }
+  return response;
+};
+
+const findByCategory = async (categoryId: number): Promise<IResponse> => {
+  let response = {} as IResponse;
+  try {
+    const data = await api.get(`${productURL}/category/${categoryId}`);
+    response = {
+      status: 200,
+      success: true,
+      message: "Produtos da categoria carregados com sucesso!",
+      data: data.data,
+    };
+  } catch (err: any) {
+    response = {
+      status: err.response?.status || 500,
+      success: false,
+      message: "Falha ao carregar produtos da categoria",
+      data: err.response?.data,
+    };
+  }
+  return response;
+};
+
+const searchByName = async (name: string): Promise<IResponse> => {
+  let response = {} as IResponse;
+  try {
+    const data = await api.get(`${productURL}/search`, {
+      params: { name },
+    });
+    response = {
+      status: 200,
+      success: true,
+      message: "Busca realizada com sucesso!",
+      data: data.data,
+    };
+  } catch (err: any) {
+    response = {
+      status: err.response?.status || 500,
+      success: false,
+      message: "Falha ao realizar a busca",
+      data: err.response?.data,
+    };
+  }
 };
 
 // Objeto que exporta todas as funções
 const ProductService = {
-    save,
-    findAll,
-    remove,
-    findById,
+  save,
+  findAll,
+  findByCategory,
+  searchByName,
+  remove,
+  findById,
 };
+
 
 export default ProductService;

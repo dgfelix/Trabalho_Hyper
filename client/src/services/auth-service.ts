@@ -7,24 +7,24 @@ import { api } from "@/lib/axios";
  * @returns - Retorna a resposta da API
  */
 const signup = async (user: IUserRegister): Promise<IResponse> => {
-    let response = {} as IResponse;
-    try {
-        const data = await api.post("/users", user);
-        response = {
-            status: 200,
-            success: true,
-            message: "Usuário cadastrado com sucesso",
-            data: data.data,
-        };
-    } catch (err: any) {
-        response = {
-            status: 400,
-            success: false,
-            message: "Usuário não pode ser cadastrado",
-            data: err.response.data,
-        };
-    }
-    return response;
+  let response = {} as IResponse;
+  try {
+    const data = await api.post("/users", user);
+    response = {
+      status: 200,
+      success: true,
+      message: "Usuário cadastrado com sucesso",
+      data: data.data,
+    };  
+  } catch (err: any) {
+    response = {
+      status: 400,
+      success: false,
+      message: "Usuário não pode ser cadastrado",
+      data: err.response.data,
+    };
+  }
+  return response;
 };
 
 /**
@@ -34,30 +34,29 @@ const signup = async (user: IUserRegister): Promise<IResponse> => {
  * Além disso salva o token no localStorage e adiciona o token no cabeçalho da requisição
  */
 const login = async (user: IUserLogin) => {
-    let response = {} as IResponse;
-    try {
-        console.log("LOGIN ANTES", user)
-        const data = await api.post("/login", user);
-        console.log(data);
-        response = {
-            status: 200,
-            success: true,
-            message: "Login bem-sucedido",
-            data: data.data,
-        };
-    } catch (err: any) {
-        response = {
-            status: 401,
-            success: false,
-            message: "Usuário ou senha inválidos",
-            data: err.response.data,
-        };
-    }
-    return response;
+  let response = {} as IResponse;
+  try {
+    const data = await api.post("/login", user);
+    console.log(data);
+    response = {
+      status: 200,
+      success: true,
+      message: "Login bem-sucedido",
+      data: data.data,
+    };
+  } catch (err: any) {
+    response = {
+      status: 401,
+      success: false,
+      message: "Usuário ou senha inválidos",
+      data: err.response.data,
+    };
+  }
+  return response;
 };
 
 const AuthService = {
-    signup,
-    login,
+  signup,
+  login,
 };
 export default AuthService;

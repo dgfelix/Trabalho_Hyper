@@ -1,36 +1,33 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Menubar } from "primereact/menubar";
 import type { MenuItem } from "primereact/menuitem";
 import { Avatar } from "primereact/avatar";
 import { Button } from "primereact/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/hooks/use-auth";
-import { InputSwitch } from "primereact/inputswitch";
 
 const TopMenu: React.FC = () => {
     const navigate = useNavigate();
-    const user = "Usuário";
-    const [darkMode, setDarkMode] = useState<boolean>(() => {
-        return localStorage.getItem("theme") === "dark";
-    });
     const { authenticated, handleLogout } = useAuth();
 
+    // Força somente o tema dark
     useEffect(() => {
         const themeLink = document.getElementById("theme-link") as HTMLLinkElement;
-        themeLink.href = darkMode
-            ? "https://unpkg.com/primereact/resources/themes/lara-dark-blue/theme.css"
-            : "https://unpkg.com/primereact/resources/themes/lara-light-blue/theme.css";
-        localStorage.setItem("theme", darkMode ? "dark" : "light");
-    }, [darkMode]);
+        if (themeLink) {
+            themeLink.href =
+                "https://unpkg.com/primereact/resources/themes/lara-dark-blue/theme.css";
+            localStorage.setItem("theme", "dark");
+        }
+    }, []);
 
-    const handleLogoutClick = () => {
-        handleLogout();
-        navigate("/login");
-    };
-
-    const items: MenuItem[] = authenticated
+    // Menu items - apenas quando autenticado
+    const menuItems: MenuItem[] = authenticated
         ? [
-            { label: "Home", icon: "pi pi-home", command: () => navigate("/") },
+            {
+                label: "Home",
+                icon: "pi pi-home",
+                command: () => navigate("/home"),
+            },
             {
                 label: "Categorias",
                 icon: "pi pi-box",
@@ -45,11 +42,11 @@ const TopMenu: React.FC = () => {
                         icon: "pi pi-plus",
                         command: () => navigate("/categories/new"),
                     },
-                ]
+                ],
             },
             {
                 label: "Produtos",
-                icon: "pi pi-box",
+                icon: "pi pi-tags",
                 items: [
                     {
                         label: "Listar",
@@ -61,84 +58,117 @@ const TopMenu: React.FC = () => {
                         icon: "pi pi-plus",
                         command: () => navigate("/products/new"),
                     },
-                    {
-                        label: "View",
-                        icon: "pi pi-search",
-                        command: () => navigate("/products/view"),
-                    },
                 ],
             },
         ]
         : [];
 
-    const start = (
+    // Handler para logout
+    const handleLogoutClick = () => {
+        handleLogout();
+        navigate("/login");
+    };
+
+    // Handler para navegação do carrinho
+    const handleCartClick = () => {
+        navigate("/cart");
+    };
+
+    // Logo/Brand section
+    const renderLogo = () => (
         <div
-            className="flex align-items-center gap-2 cursor-pointer"
-            onClick={() => navigate("/")}
+            className="flex items-center gap-2 cursor-pointer"
+            onClick={() => navigate("/home")}
         >
             <img
-                src="/assets/images/logo.png"
+                src="/assets/images/utfpr-logo-nb.png"
                 alt="Logo"
-                height={32}
-                style={{ objectFit: "contain" }}
+                height={34}
+                className="object-contain"
             />
-            <span className="font-bold text-lg hidden sm:block">  </span>
+            <span className="font-semibold text-lg hidden sm:block text-gray-200">
+        PW44S
+      </span>
         </div>
     );
 
-    const end = (
-        <div className="flex align-items-center gap-3">
-            <div className="flex items-center gap-2">
-                <i
-                    className={`pi pi-sun ${
-                        darkMode ? "text-gray-400" : "text-yellow-500"
-                    }`}
-                    style={{ marginTop: "5px" }}
-                />
-                <InputSwitch
-                    checked={darkMode}
-                    onChange={(e) => setDarkMode(e.value ?? false)}
-                />
-                <i
-                    className={`pi pi-moon ${
-                        darkMode ? "text-blue-300" : "text-gray-400"
-                    }`}
-                    style={{ marginTop: "5px" }}
-                />
-            </div>
+    // Cart icon
+    const renderCartIcon = () => (
+        <div
+            className="relative cursor-pointer hover:text-blue-300 transition-colors"
+            onClick={handleCartClick}
+            style={{ display: "flex", alignItems: "center" }}
+        >
+            <i className="pi pi-shopping-cart text-xl text-gray-200" />
+        </div>
+    );
 
-            {authenticated && (
-                <>
-                    <span className="font-semibold hidden sm:block">{user}</span>
-                    <Avatar
-                        image="https://api.dicebear.com/9.x/bottts-neutral/svg?seed=Caleb"
-                        shape="square"
-                    />
-                    <Button
-                        icon="pi pi-sign-out"
-                        className="p-button-text"
-                        onClick={handleLogoutClick}
-                    />
-                </>
-            )}
+    // Guest user buttons (não autenticado)
+    const renderGuestButtons = () => (
+        <div className="flex items-center gap-2">
+            <Button
+                label="Entrar"
+                className="p-button-sm p-button-rounded p-button-text text-gray-200 hover:text-white transition-all"
+                onClick={() => navigate("/login")}
+            />
+            <Button
+                label="Criar Conta"
+                className="p-button-sm p-button-rounded"
+                style={{
+                    background: "#3b82f6",
+                    borderColor: "#3b82f6",
+                    paddingInline: "1rem",
+                    fontWeight: "600",
+                }}
+                onClick={() => navigate("/register")}
+            />
+        </div>
+    );
+
+    // Authenticated user section
+    const renderAuthenticatedUser = () => (
+        <div className="flex items-center gap-3">
+            <Avatar
+                image="https://api.dicebear.com/9.x/bottts-neutral/svg?seed=User"
+                shape="circle"
+                style={{ border: "2px solid #3b82f6" }}
+            />
+            <Button
+                icon="pi pi-sign-out"
+                className="p-button-text p-button-sm text-gray-300 hover:text-white"
+                onClick={handleLogoutClick}
+                tooltip="Sair"
+                tooltipOptions={{ position: "bottom" }}
+            />
+        </div>
+    );
+
+    // End section (direita do menu)
+    const renderEndSection = () => (
+        <div className="flex items-center gap-4">
+            {renderCartIcon()}
+            {authenticated ? renderAuthenticatedUser() : renderGuestButtons()}
         </div>
     );
 
     return (
         <div
-            style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                right: 0,
-                width: "100%",
-                zIndex: 1000,
-                backgroundColor: "var(--surface-ground)",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-            }}
             className="fixed top-0 left-0 w-full z-50"
+            style={{
+                backgroundColor: "#1f2937",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.45)",
+            }}
         >
-            <Menubar model={items} start={start} end={end} />
+            <Menubar
+                model={menuItems}
+                start={renderLogo()}
+                end={renderEndSection()}
+                className="text-gray-200 px-3"
+                style={{
+                    background: "transparent",
+                    border: "none",
+                }}
+            />
         </div>
     );
 };

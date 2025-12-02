@@ -25,4 +25,7 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     private Category category;
+
+    @Column(name = "image_path")
+    private String imagePath;
 }

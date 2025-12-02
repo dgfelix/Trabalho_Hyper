@@ -17,18 +17,18 @@ export interface IUserLogin {
 }
 
 export interface Authorities {
-    authority: string;
+  authority: string;
 }
 
 export interface AuthenticatedUser {
-    displayName: string;
-    username: string;
-    authorities: Authorities[];
+  displayName: string;
+  username: string;
+  authorities: Authorities[];
 }
 
 export interface AuthenticationResponse {
-    token: string;
-    user: AuthenticatedUser;
+  token: string;
+  user: AuthenticatedUser;
 }
 
 export  interface  ICategory {
@@ -37,11 +37,12 @@ export  interface  ICategory {
 }
 
 export interface IProduct {
-    id?: number;
-    name: string;
-    description: string;
-    price: number;
-    category: ICategory;
-    imageName?: string;
-    contentType?: string;
+  id?: number;
+  name: string;
+  description: string;
+  price: number;
+  category: ICategory;
+  imagePath?: string;
+  imageName?: string;
+  contentType?: string;
 }
