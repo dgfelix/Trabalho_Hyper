@@ -1,6 +1,7 @@
 package br.edu.utfpr.pb.pw44s.server.controller;
 
 import br.edu.utfpr.pb.pw44s.server.service.ICrudService;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -68,6 +69,7 @@ public abstract class CrudController <T, D, ID extends Serializable> {
     }
 
     @PostMapping
+    @Transactional
     public ResponseEntity<D> create(@RequestBody @Valid D entity) {
         
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -76,8 +78,26 @@ public abstract class CrudController <T, D, ID extends Serializable> {
     }
 
     @PutMapping("{id}")
+    @Transactional
     public ResponseEntity<D> update(@PathVariable ID id, @RequestBody @Valid D entity) {
-        return ResponseEntity.status(HttpStatus.OK).body(convertToDto(getService().save(convertToEntity(entity))));
+
+        T existingEntity = getService().findOne(id);
+
+        if (existingEntity == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Mapeia DTO para entidade existente (preserva ID)
+        getModelMapper().map(entity, existingEntity);
+
+        // Salva a entidade atualizada
+        T updatedEntity = getService().save(existingEntity);
+
+        return ResponseEntity.ok(convertToDto(updatedEntity));
+
+        /*return ResponseEntity.status(HttpStatus.OK).body(convertToDto(getService().save(convertToEntity(entity))));
+        */
+
     }
 
     @GetMapping("exists/{id}")
@@ -91,6 +111,7 @@ public abstract class CrudController <T, D, ID extends Serializable> {
     }
 
     @DeleteMapping("{id}")
+    @Transactional
     public ResponseEntity<Void> delete(@PathVariable ID id) {
         getService().delete(id);
         return ResponseEntity.noContent().build();

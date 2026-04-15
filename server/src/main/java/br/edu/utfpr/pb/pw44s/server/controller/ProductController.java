@@ -24,6 +24,9 @@ public class ProductController extends CrudController<Product, ProductDTO, Long>
         this.modelMapper = modelMapper;
     }
 
+
+
+
     @Override
     protected ICrudService<Product, Long> getService() {
         return this.productService;

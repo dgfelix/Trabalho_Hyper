@@ -52,10 +52,10 @@ INSERT INTO tb_category (name) VALUES ('Smartphone');
 
 -- Inserindo produtos - DRONES (category_id = 1)
 INSERT INTO tb_product (name, description, price, image_path, category_id)
-VALUES ('Drone DJI Mavic 3 Pro', 'Câmera Hasselblad 4K, 20MP, 46 minutos de voo - Marca: DJI, Modelo: Mavic 3 Pro', 12999.00, 'drone1.png', 1);
+VALUES ('Drone DJI Mavic 3 Pro', 'Câmera Hasselblad 4K, 20MP, 46 minutos de voo - Marca: DJI, Modelo: Mavic 3 Pro', 12999.00, '/drone1.png', 1);
 
 INSERT INTO tb_product (name, description, price, image_path, category_id)
-VALUES ('Drone Autel Robotics EVO II', 'Câmera 8K, 40 minutos de voo, Obstacle Avoidance - Marca: Autel Robotics, Modelo: EVO II', 9500.00, 'drone2.png', 1);
+VALUES ('Drone Autel Robotics EVO II', 'Câmera 8K, 40 minutos de voo, Obstacle Avoidance - Marca: Autel Robotics, Modelo: EVO II', 9500.00, '/drone2.png', 1);
 
 INSERT INTO tb_product (name, description, price, image_path, category_id)
 VALUES ('Drone Parrot Anafi', 'Compacto, Câmera 4K HDR, 25 minutos de voo - Marca: Parrot, Modelo: Anafi', 3200.00, 'drone3.png', 1);

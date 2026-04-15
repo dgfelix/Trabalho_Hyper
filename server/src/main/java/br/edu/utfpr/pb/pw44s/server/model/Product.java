@@ -21,11 +21,13 @@ public class Product {
     private String description;
     
     private BigDecimal price;
-    
+
+    @Column(name = "image_path")
+    private String imagePath;
+
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     private Category category;
 
-    @Column(name = "image_path")
-    private String imagePath;
+
 }
