@@ -111,12 +111,18 @@ const findById = async (id: number): Promise<IResponse> => {
 const findByCategory = async (categoryId: number): Promise<IResponse> => {
   let response = {} as IResponse;
   try {
-    const data = await api.get(`${productURL}/category/${categoryId}`);
+    // O backend não possui endpoint /products/category/{id}.
+    // Buscamos todos os produtos e filtramos por categoria no cliente.
+    const data = await api.get(productURL);
+    const allProducts = Array.isArray(data.data) ? data.data : [];
+    const filtered = allProducts.filter(
+      (p: any) => p.category?.id === categoryId
+    );
     response = {
       status: 200,
       success: true,
       message: "Produtos da categoria carregados com sucesso!",
-      data: data.data,
+      data: filtered,
     };
   } catch (err: any) {
     response = {
@@ -149,6 +155,7 @@ const searchByName = async (name: string): Promise<IResponse> => {
       data: err.response?.data,
     };
   }
+  return response;
 };
 
 // Objeto que exporta todas as funções

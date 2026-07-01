@@ -9,6 +9,7 @@ import { CategoryFormPage } from "@/pages/category-form";
 import { ProductListPage } from "@/pages/product-list";
 import { ProductFormPage } from "@/pages/product-form";
 import { ProductDetailPage } from "@/pages/product-detail";
+import { CartPage } from "@/pages/cart";
 
 export function AppRoutes() {
   return (
@@ -29,6 +30,7 @@ export function AppRoutes() {
         <Route path="/products/:id" element={<ProductFormPage />} />
 
         <Route path="/productsdetail/:id" element={<ProductDetailPage />} />
+        <Route path="/cart" element={<CartPage />} />
 
         {/* protected routes */}
         <Route element={<RequireAuth />}>

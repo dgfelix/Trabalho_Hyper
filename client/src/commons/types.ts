@@ -46,3 +46,15 @@ export interface IProduct {
   imageName?: string;
   contentType?: string;
 }
+
+export interface ICartItem {
+  product: IProduct;
+  quantity: number;
+}
+
+export interface IAddress {
+  id?: number;
+  city: string;
+  street: string;
+  cep: string;
+}

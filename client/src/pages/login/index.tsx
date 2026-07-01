@@ -4,7 +4,7 @@ import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 import { Button } from "primereact/button";
 import { Card } from "primereact/card";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import type { AuthenticationResponse, IUserLogin } from "@/commons/types";
 import AuthService from "@/services/auth-service";
 import { Toast } from "primereact/toast";
@@ -17,6 +17,8 @@ export const LoginPage = () => {
     formState: { errors, isSubmitting },
   } = useForm<IUserLogin>({ defaultValues: { username: "", password: "" } });  
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as any)?.from || "/";
   const { login } = AuthService;
   const toast = useRef<Toast>(null);
   const [loading, setLoading] = useState(false);
@@ -36,7 +38,7 @@ export const LoginPage = () => {
           life: 3000,
         });
         setTimeout(() => {
-          navigate("/");
+          navigate(from, { replace: true });
         }, 1000);
       } else {
         toast.current?.show({

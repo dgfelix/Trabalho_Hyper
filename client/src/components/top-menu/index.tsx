@@ -1,24 +1,16 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Menubar } from "primereact/menubar";
 import type { MenuItem } from "primereact/menuitem";
 import { Avatar } from "primereact/avatar";
 import { Button } from "primereact/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/hooks/use-auth";
+import { useCart } from "@/context/hooks/use-cart";
 
 const TopMenu: React.FC = () => {
     const navigate = useNavigate();
     const { authenticated, handleLogout } = useAuth();
-
-    // Força somente o tema dark
-    useEffect(() => {
-        const themeLink = document.getElementById("theme-link") as HTMLLinkElement;
-        if (themeLink) {
-            themeLink.href =
-                "https://unpkg.com/primereact/resources/themes/lara-dark-blue/theme.css";
-            localStorage.setItem("theme", "dark");
-        }
-    }, []);
+    const { totalItems } = useCart();
 
     // Menu items - apenas quando autenticado
     const menuItems: MenuItem[] = authenticated
@@ -26,7 +18,7 @@ const TopMenu: React.FC = () => {
             {
                 label: "Home",
                 icon: "pi pi-home",
-                command: () => navigate("/home"),
+                command: () => navigate("/"),
             },
             {
                 label: "Categorias",
@@ -78,7 +70,7 @@ const TopMenu: React.FC = () => {
     const renderLogo = () => (
         <div
             className="flex items-center gap-2 cursor-pointer"
-            onClick={() => navigate("/home")}
+            onClick={() => navigate("/")}
         >
             <img
                 src="/assets/images/utfpr-logo-nb.png"
@@ -92,7 +84,7 @@ const TopMenu: React.FC = () => {
         </div>
     );
 
-    // Cart icon
+    // Cart icon com badge de quantidade
     const renderCartIcon = () => (
         <div
             className="relative cursor-pointer hover:text-blue-300 transition-colors"
@@ -100,6 +92,27 @@ const TopMenu: React.FC = () => {
             style={{ display: "flex", alignItems: "center" }}
         >
             <i className="pi pi-shopping-cart text-xl text-gray-200" />
+            {totalItems > 0 && (
+                <span style={{
+                    position: "absolute",
+                    top: "-8px",
+                    right: "-8px",
+                    background: "#ef4444",
+                    color: "#fff",
+                    fontSize: "10px",
+                    fontWeight: 700,
+                    borderRadius: "999px",
+                    minWidth: "18px",
+                    height: "18px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "0 4px",
+                    lineHeight: 1,
+                }}>
+                    {totalItems > 99 ? "99+" : totalItems}
+                </span>
+            )}
         </div>
     );
 

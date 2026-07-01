@@ -1,300 +1,312 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "primereact/button";
-import { Badge } from "primereact/badge";
 import { ProgressSpinner } from "primereact/progressspinner";
 import { Toast } from "primereact/toast";
+import { Divider } from "primereact/divider";
 import ProductService from "@/services/product-service.ts";
 import type { IProduct } from "@/commons/types.ts";
+import { resolveProductImage } from "@/lib/product-image";
+import { useCart } from "@/context/hooks/use-cart";
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+const formatPrice = (price: number): string =>
+    price.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+const calcInstallment = (price: number, n = 5): string =>
+    (price / n).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+const calcPixPrice = (price: number, discount = 0.05): string =>
+    (price * (1 - discount)).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+// ---------------------------------------------------------------------------
+// Componente
+// ---------------------------------------------------------------------------
 
 export const ProductDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const [product, setProduct] = useState<IProduct | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [selectedImage, setSelectedImage] = useState<string>("");
-    const [quantity, setQuantity] = useState(1);
     const toast = React.useRef<Toast>(null);
 
+    const { addItem } = useCart();
+
+    const [product, setProduct]   = useState<IProduct | null>(null);
+    const [loading, setLoading]   = useState(true);
+    const [error, setError]       = useState<string | null>(null);
+    const [quantity, setQuantity] = useState(1);
+
+    // -----------------------------------------------------------------------
+    // Carregamento do produto
+    // -----------------------------------------------------------------------
     useEffect(() => {
-        loadProduct();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        if (!id) { setError("ID do produto não encontrado"); setLoading(false); return; }
+
+        const load = async () => {
+            try {
+                setLoading(true);
+                const response = await ProductService.findById(Number(id));
+                if (response.success && response.data) {
+                    setProduct(response.data as IProduct);
+                } else {
+                    setError(response.message || "Produto não encontrado");
+                }
+            } catch {
+                setError("Não foi possível carregar o produto");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        load();
     }, [id]);
 
-    const loadProduct = async () => {
-        if (!id) {
-            setError("ID do produto não encontrado");
-            setLoading(false);
-            return;
-        }
-
-        try {
-            setLoading(true);
-            setError(null);
-
-            const response = await ProductService.findById(Number(id));
-
-            if (response.success && response.data) {
-                const productData = response.data as IProduct;
-                setProduct(productData);
-
-                // Define imagem principal
-                if (productData.imagePath) {
-                    setSelectedImage(`/imagens/${productData.imagePath}`);
-                }
-            } else {
-                setError(response.message || "Produto não encontrado");
-            }
-        } catch (err) {
-            setError("Não foi possível carregar o produto");
-            console.error("Erro ao carregar produto:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
+    // -----------------------------------------------------------------------
+    // Ações
+    // -----------------------------------------------------------------------
     const handleAddToCart = () => {
         if (!product) return;
-
-        // TODO: Implementar lógica real de adicionar ao carrinho
-        console.log("Adicionar ao carrinho:", {
-            productId: product.id,
-            quantity,
-        });
-
+        addItem(product, quantity);
         toast.current?.show({
             severity: "success",
-            summary: "Produto adicionado!",
-            detail: `${product.name} foi adicionado ao carrinho`,
+            summary: "Adicionado ao carrinho",
+            detail: `${quantity}x ${product.name}`,
             life: 3000,
         });
     };
 
     const handleBuyNow = () => {
         if (!product) return;
-
-        // TODO: Implementar lógica de compra direta
-        handleAddToCart();
-        navigate("/checkout");
+        addItem(product, quantity);
+        navigate("/cart");
     };
 
-    const formatPrice = (price: number): string => {
-        return price.toLocaleString("pt-BR", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        });
-    };
-
-    const calculateInstallment = (price: number, installments: number = 5): string => {
-        const installmentValue = price / installments;
-        return installmentValue.toLocaleString("pt-BR", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        });
-    };
-
-    // Loading State
+    // -----------------------------------------------------------------------
+    // Estados de loading / erro
+    // -----------------------------------------------------------------------
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-900 pt-24 flex items-center justify-center">
-                <ProgressSpinner
-                    style={{ width: "50px", height: "50px" }}
-                    strokeWidth="4"
-                />
+            <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+                <ProgressSpinner style={{ width: "50px", height: "50px" }} strokeWidth="4" />
             </div>
         );
     }
 
-    // Error State
     if (error || !product) {
         return (
             <div className="min-h-screen bg-gray-900 pt-24 px-4">
-                <div className="max-w-2xl mx-auto">
-                    <div className="text-center text-red-400 p-8 bg-gray-800 rounded-lg border border-red-800">
-                        <i className="pi pi-exclamation-triangle text-4xl mb-3" />
-                        <p className="text-xl mb-4">{error || "Produto não encontrado"}</p>
-                        <Button
-                            label="Voltar para Home"
-                            icon="pi pi-arrow-left"
-                            onClick={() => navigate("/home")}
-                            className="p-button-outlined"
-                        />
-                    </div>
+                <div className="max-w-2xl mx-auto text-center p-8 bg-gray-800 rounded-lg border border-red-800">
+                    <i className="pi pi-exclamation-triangle text-red-400 text-4xl mb-4" />
+                    <p className="text-red-400 text-xl mb-6">{error || "Produto não encontrado"}</p>
+                    <Button label="Voltar" icon="pi pi-arrow-left" className="p-button-outlined" onClick={() => navigate(-1)} />
                 </div>
             </div>
         );
     }
 
-    // Main Content
+    const imageSrc = resolveProductImage(product.imagePath, product.name);
+
+    // -----------------------------------------------------------------------
+    // Render principal
+    // -----------------------------------------------------------------------
     return (
-        <div className="min-h-screen bg-gray-900 pt-24 pb-12">
+        <div className="min-h-screen bg-gray-900 pb-16">
             <Toast ref={toast} />
 
-            <div className="max-w-7xl mx-auto px-4">
-                {/* Breadcrumb */}
-                <div className="mb-6">
+            <div className="max-w-6xl mx-auto px-6 pt-8">
+
+                {/* Breadcrumb / Voltar */}
+                <div className="mb-8">
                     <Button
                         label="Voltar"
                         icon="pi pi-arrow-left"
-                        className="p-button-text text-gray-400"
+                        className="p-button-text"
+                        style={{ color: "#9ca3af" }}
                         onClick={() => navigate(-1)}
                     />
                 </div>
 
-                {/* Main Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Coluna Esquerda - Imagens */}
-                    <div className="space-y-4">
-                        {/* Imagem Principal */}
-                        <div className="bg-white rounded-2xl p-8 flex items-center justify-center h-[500px]">
+                {/* Layout principal: imagem à esquerda, info à direita */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "48px", alignItems: "start" }}>
+
+                    {/* ── Coluna esquerda: imagem ── */}
+                    <div>
+                        {/* Imagem principal */}
+                        <div
+                            style={{
+                                background: "#1f2937",
+                                borderRadius: "16px",
+                                overflow: "hidden",
+                                height: "420px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                border: "1px solid #374151",
+                            }}
+                        >
                             <img
-                                src={selectedImage || "/imagens/placeholder.png"}
+                                src={imageSrc}
                                 alt={product.name}
-                                className="max-w-full max-h-full object-contain"
+                                style={{ width: "100%", height: "100%", objectFit: "cover" }}
                                 onError={(e) => {
-                                    const target = e.target as HTMLImageElement;
-                                    target.src = "/imagens/placeholder.png";
+                                    (e.target as HTMLImageElement).style.display = "none";
                                 }}
                             />
                         </div>
 
-                        {/* Thumbnails */}
-                        <div className="flex gap-4 justify-center">
-                            <div
-                                className={`w-20 h-20 bg-white rounded-lg cursor-pointer border-2 ${
-                                    selectedImage === `/imagens/${product.imagePath}`
-                                        ? "border-blue-500"
-                                        : "border-gray-300"
-                                } hover:border-blue-400 transition-colors p-2`}
-                                onClick={() =>
-                                    product.imagePath &&
-                                    setSelectedImage(`/imagens/${product.imagePath}`)
-                                }
-                            >
-                                <img
-                                    src={`/imagens/${product.imagePath}`}
-                                    alt="Thumbnail 1"
-                                    className="w-full h-full object-contain"
-                                    onError={(e) => {
-                                        const target = e.target as HTMLImageElement;
-                                        target.src = "/imagens/placeholder.png";
+                        {/* Grid de benefícios */}
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "20px" }}>
+                            {[
+                                { icon: "pi-credit-card", color: "#4ade80", label: "Parcelamento",   sub: "em até 12x sem juros" },
+                                { icon: "pi-truck",       color: "#60a5fa", label: "Frete grátis",   sub: "acima de R$ 299" },
+                                { icon: "pi-qrcode",      color: "#fbbf24", label: "Pix",            sub: "5% de desconto" },
+                                { icon: "pi-shield",      color: "#c084fc", label: "Garantia",       sub: "12 meses" },
+                            ].map(({ icon, color, label, sub }) => (
+                                <div
+                                    key={label}
+                                    style={{
+                                        background: "#1f2937",
+                                        borderRadius: "12px",
+                                        padding: "16px",
+                                        textAlign: "center",
+                                        border: "1px solid #374151",
                                     }}
-                                />
-                            </div>
-                            {/* Pode adicionar mais thumbnails aqui */}
-                        </div>
-
-                        {/* Features */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-gray-800 rounded-lg p-4 text-center border border-gray-700">
-                                <i className="pi pi-credit-card text-green-400 text-2xl mb-2" />
-                                <p className="text-gray-300 text-sm">Parcelamento</p>
-                                <p className="text-gray-400 text-xs">em até 12x</p>
-                            </div>
-                            <div className="bg-gray-800 rounded-lg p-4 text-center border border-gray-700">
-                                <i className="pi pi-truck text-blue-400 text-2xl mb-2" />
-                                <p className="text-gray-300 text-sm">Entrega</p>
-                                <p className="text-gray-400 text-xs">fora do Brasil</p>
-                            </div>
-                            <div className="bg-gray-800 rounded-lg p-4 text-center border border-gray-700">
-                                <i className="pi pi-dollar text-yellow-400 text-2xl mb-2" />
-                                <p className="text-gray-300 text-sm">Cartão e Pix</p>
-                                <p className="text-gray-400 text-xs">aceitos</p>
-                            </div>
-                            <div className="bg-gray-800 rounded-lg p-4 text-center border border-gray-700">
-                                <i className="pi pi-shield text-purple-400 text-2xl mb-2" />
-                                <p className="text-gray-300 text-sm">Preço não</p>
-                                <p className="text-gray-400 text-xs">inclui valor</p>
-                            </div>
+                                >
+                                    <i className={`pi ${icon} text-2xl mb-2`} style={{ color, display: "block" }} />
+                                    <p style={{ color: "#d1d5db", fontSize: "13px", fontWeight: 500, marginBottom: "2px" }}>{label}</p>
+                                    <p style={{ color: "#6b7280", fontSize: "11px" }}>{sub}</p>
+                                </div>
+                            ))}
                         </div>
                     </div>
 
-                    {/* Coluna Direita - Informações */}
-                    <div className="space-y-6">
-                        {/* Badge de Estoque */}
-                        <Badge value="Em estoque" severity="success" />
+                    {/* ── Coluna direita: informações ── */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
 
-                        {/* Título */}
-                        <h1 className="text-3xl font-bold text-gray-100 leading-tight">
+                        {/* Badge de estoque */}
+                        <div style={{ marginBottom: "12px" }}>
+                            <span style={{
+                                background: "#14532d",
+                                color: "#4ade80",
+                                fontSize: "12px",
+                                fontWeight: 600,
+                                padding: "4px 12px",
+                                borderRadius: "999px",
+                                border: "1px solid #166534",
+                            }}>
+                                ● Em estoque
+                            </span>
+                        </div>
+
+                        {/* Categoria */}
+                        <p style={{ color: "#6b7280", fontSize: "13px", marginBottom: "8px" }}>
+                            {product.category?.name || "Sem categoria"}
+                        </p>
+
+                        {/* Nome do produto */}
+                        <h1 style={{ color: "#f3f4f6", fontSize: "26px", fontWeight: 700, lineHeight: 1.3, marginBottom: "24px" }}>
                             {product.name}
                         </h1>
 
-                        {/* Preço */}
-                        <div className="space-y-2">
-                            <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-bold text-green-400">
-                  R$ {formatPrice(product.price)}
-                </span>
+                        <Divider style={{ margin: "0 0 20px 0", borderColor: "#374151" }} />
+
+                        {/* Preços */}
+                        <div style={{ marginBottom: "24px" }}>
+                            <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "4px" }}>
+                                <span style={{ color: "#9ca3af", fontSize: "13px", textDecoration: "line-through" }}>
+                                    R$ {formatPrice(product.price)}
+                                </span>
+                                <span style={{ color: "#4ade80", fontSize: "13px", fontWeight: 500 }}>5% OFF no Pix</span>
                             </div>
-                            <p className="text-gray-400 text-sm">
-                                à vista no pix
+                            <div style={{ marginBottom: "6px" }}>
+                                <span style={{ color: "#f3f4f6", fontSize: "36px", fontWeight: 800 }}>
+                                    R$ {calcPixPrice(product.price)}
+                                </span>
+                            </div>
+                            <p style={{ color: "#9ca3af", fontSize: "13px" }}>
+                                à vista no Pix
                             </p>
-                            <p className="text-gray-300 text-sm">
-                                ou até 5x de <span className="font-semibold">R$ {calculateInstallment(product.price)}</span>
+                            <p style={{ color: "#d1d5db", fontSize: "14px", marginTop: "4px" }}>
+                                ou <strong>R$ {formatPrice(product.price)}</strong> em até{" "}
+                                <strong>5x de R$ {calcInstallment(product.price)}</strong> sem juros
                             </p>
                         </div>
 
+                        <Divider style={{ margin: "0 0 20px 0", borderColor: "#374151" }} />
+
                         {/* Quantidade */}
-                        <div className="space-y-2">
-                            <label className="text-gray-300 font-medium">Quantidade</label>
-                            <div className="flex items-center gap-4">
+                        <div style={{ marginBottom: "24px" }}>
+                            <p style={{ color: "#d1d5db", fontSize: "14px", fontWeight: 500, marginBottom: "12px" }}>
+                                Quantidade
+                            </p>
+                            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
                                 <Button
                                     icon="pi pi-minus"
-                                    className="p-button-rounded p-button-outlined"
+                                    className="p-button-rounded p-button-outlined p-button-sm"
+                                    style={{ width: "36px", height: "36px" }}
                                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                                     disabled={quantity <= 1}
                                 />
-                                <span className="text-2xl font-bold text-gray-100 w-12 text-center">
-                  {quantity}
-                </span>
+                                <span style={{ color: "#f3f4f6", fontSize: "20px", fontWeight: 700, minWidth: "32px", textAlign: "center" }}>
+                                    {quantity}
+                                </span>
                                 <Button
                                     icon="pi pi-plus"
-                                    className="p-button-rounded p-button-outlined"
+                                    className="p-button-rounded p-button-outlined p-button-sm"
+                                    style={{ width: "36px", height: "36px" }}
                                     onClick={() => setQuantity(quantity + 1)}
                                 />
                             </div>
                         </div>
 
-                        {/* Botões de Ação */}
-                        <div className="space-y-3">
+                        {/* Botões de ação */}
+                        <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "28px" }}>
                             <Button
-                                label="COMPRAR"
+                                label="COMPRAR AGORA"
                                 icon="pi pi-shopping-cart"
-                                className="w-full p-button-lg font-bold"
+                                className="w-full"
                                 style={{
-                                    background: "#ff6600",
+                                    background: "#ea580c",
                                     border: "none",
-                                    fontSize: "18px",
-                                    padding: "16px",
+                                    fontSize: "16px",
+                                    fontWeight: 700,
+                                    padding: "14px 24px",
+                                    borderRadius: "10px",
                                 }}
                                 onClick={handleBuyNow}
                             />
                             <Button
                                 label="Adicionar ao Carrinho"
                                 icon="pi pi-cart-plus"
-                                className="w-full p-button-lg p-button-outlined"
+                                className="w-full p-button-outlined"
+                                style={{
+                                    fontSize: "15px",
+                                    padding: "12px 24px",
+                                    borderRadius: "10px",
+                                    borderColor: "#3b82f6",
+                                    color: "#3b82f6",
+                                }}
                                 onClick={handleAddToCart}
                             />
                         </div>
 
-                        {/* Categoria */}
-                        <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-                            <p className="text-gray-400 text-sm mb-1">Categoria</p>
-                            <p className="text-gray-100 font-semibold">
-                                {product.category?.name || "Sem categoria"}
-                            </p>
-                        </div>
-
                         {/* Descrição */}
-                        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                            <h3 className="text-xl font-bold text-gray-100 mb-4">
+                        <div style={{
+                            background: "#1f2937",
+                            borderRadius: "12px",
+                            padding: "20px 24px",
+                            border: "1px solid #374151",
+                        }}>
+                            <h3 style={{ color: "#f3f4f6", fontSize: "16px", fontWeight: 600, marginBottom: "10px" }}>
                                 Descrição
                             </h3>
-                            <p className="text-gray-300 leading-relaxed">
+                            <p style={{ color: "#9ca3af", fontSize: "14px", lineHeight: 1.7 }}>
                                 {product.description || "Sem descrição disponível."}
                             </p>
                         </div>
+
                     </div>
                 </div>
             </div>
