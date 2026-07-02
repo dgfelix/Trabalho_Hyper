@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter @Setter
@@ -17,7 +17,7 @@ public class OrderDTO {
     private Long id;
 
     /** Preenchida automaticamente pelo servidor — ignorada no request. */
-    private Date date;
+    private LocalDateTime date;
 
     /** Soma bruta de todos os itens — calculada pelo servidor. */
     private BigDecimal valorInicial;

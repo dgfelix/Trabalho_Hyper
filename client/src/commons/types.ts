@@ -58,3 +58,39 @@ export interface IAddress {
   street: string;
   cep: string;
 }
+
+export interface IFormaPgto {
+  id: number;
+  type: string;
+  description: string;
+}
+
+export interface IItensOrder {
+  productId: number;
+  quantity: number;
+}
+
+export interface IOrderRequest {
+  formaPgto: string;
+  addressId: number;
+  desconto: number;
+  itens: IItensOrder[];
+}
+
+export interface IOrderResponse {
+  id: number;
+  date: string;
+  valorInicial: number;
+  desconto: number;
+  valorFinal: number;
+  formaPgto: string;
+  username: string;
+  addressId: number;
+  itens: {
+    id: number;
+    productId: number;
+    productName: string;
+    price: number;
+    quantity: number;
+  }[];
+}

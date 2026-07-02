@@ -2,12 +2,11 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "primereact/button";
 import { ProgressSpinner } from "primereact/progressspinner";
+import { Toast } from "primereact/toast";
 import ProductService from "@/services/product-service";
 import type { IProduct } from "@/commons/types";
 import { resolveProductImage } from "@/lib/product-image";
-
-const SVG_PLACEHOLDER =
-    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%234b5563'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='14' fill='%239ca3af'%3ESem imagem%3C/text%3E%3C/svg%3E";
+import { useCart } from "@/context/hooks/use-cart";
 
 interface CarrosselProps {
     categoryId: number;
@@ -16,15 +15,175 @@ interface CarrosselProps {
     products?: IProduct[];
 }
 
+// ---------------------------------------------------------------------------
+// Card de produto — mesmo estilo da tela /products
+// ---------------------------------------------------------------------------
+
+interface CardProps {
+    product: IProduct;
+    onView: () => void;
+    onAddToCart: () => void;
+}
+
+const ProductCard: React.FC<CardProps> = ({ product, onView, onAddToCart }) => {
+    const [hovered, setHovered] = useState(false);
+    const pixPrice = product.price * 0.95;
+    const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+    return (
+        <div
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            style={{
+                width: "240px",
+                flexShrink: 0,
+                background: "#1f2937",
+                border: `1px solid ${hovered ? "#3b82f6" : "#374151"}`,
+                borderRadius: "14px",
+                overflow: "hidden",
+                display: "flex",
+                flexDirection: "column",
+                transition: "border-color 0.2s, transform 0.2s, box-shadow 0.2s",
+                transform: hovered ? "translateY(-3px)" : "translateY(0)",
+                boxShadow: hovered ? "0 8px 24px rgba(59,130,246,0.15)" : "none",
+                cursor: "pointer",
+            }}
+        >
+            {/* Imagem */}
+            <div
+                onClick={onView}
+                style={{ width: "100%", height: "180px", background: "#111827", overflow: "hidden", flexShrink: 0 }}
+            >
+                <img
+                    src={resolveProductImage(product.imagePath, product.name)}
+                    alt={product.name}
+                    loading="lazy"
+                    style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        transition: "transform 0.3s",
+                        transform: hovered ? "scale(1.06)" : "scale(1)",
+                    }}
+                />
+            </div>
+
+            {/* Corpo */}
+            <div style={{ padding: "14px", display: "flex", flexDirection: "column", flex: 1, gap: "8px" }}>
+                {/* Badge categoria */}
+                <span style={{
+                    fontSize: "10px",
+                    fontWeight: 700,
+                    color: "#60a5fa",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.08em",
+                    textAlign: "center",
+                }}>
+                    {product.category?.name}
+                </span>
+
+                {/* Nome */}
+                <p
+                    onClick={onView}
+                    style={{
+                        color: "#f3f4f6",
+                        fontSize: "14px",
+                        fontWeight: 600,
+                        margin: 0,
+                        lineHeight: 1.4,
+                        textAlign: "center",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                    }}
+                >
+                    {product.name}
+                </p>
+
+                {/* Preços */}
+                <div style={{ marginTop: "auto", paddingTop: "8px", textAlign: "center" }}>
+                    <p style={{ color: "#6b7280", fontSize: "11px", textDecoration: "line-through", margin: "0 0 2px" }}>
+                        {fmt(product.price)}
+                    </p>
+                    <p style={{ color: "#4ade80", fontSize: "16px", fontWeight: 800, margin: "0 0 2px" }}>
+                        {fmt(pixPrice)}
+                        <span style={{ color: "#6b7280", fontSize: "10px", fontWeight: 400, marginLeft: "4px" }}>no PIX</span>
+                    </p>
+                    <p style={{ color: "#9ca3af", fontSize: "11px", margin: 0 }}>
+                        ou {fmt(product.price)} em até 12x
+                    </p>
+                </div>
+
+                {/* Ações */}
+                <div style={{ display: "flex", gap: "8px", marginTop: "12px" }}>
+                    <button
+                        onClick={onAddToCart}
+                        style={{
+                            flex: 1,
+                            background: "#ea580c",
+                            border: "none",
+                            borderRadius: "8px",
+                            color: "#fff",
+                            fontSize: "12px",
+                            fontWeight: 700,
+                            padding: "9px 0",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: "6px",
+                            transition: "background 0.15s",
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = "#c2410c")}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = "#ea580c")}
+                    >
+                        <i className="pi pi-cart-plus" />
+                        Comprar
+                    </button>
+
+                    <button
+                        onClick={onView}
+                        title="Ver detalhes"
+                        style={{
+                            background: "#374151",
+                            border: "none",
+                            borderRadius: "8px",
+                            color: "#9ca3af",
+                            width: "36px",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            transition: "background 0.15s",
+                            flexShrink: 0,
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = "#4b5563")}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = "#374151")}
+                    >
+                        <i className="pi pi-eye" style={{ fontSize: "14px" }} />
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// ---------------------------------------------------------------------------
+// Carrossel
+// ---------------------------------------------------------------------------
+
 export const Carrossel: React.FC<CarrosselProps> = ({ categoryId, title, products: productsProp }) => {
-    const [products, setProducts] = useState<IProduct[]>(productsProp ?? []);
-    const [loading, setLoading] = useState(!productsProp);
-    const [error, setError] = useState<string | null>(null);
-    const scrollContainerRef = useRef<HTMLDivElement>(null);
-    const navigate = useNavigate();
+    const [products, setProducts]   = useState<IProduct[]>(productsProp ?? []);
+    const [loading, setLoading]     = useState(!productsProp);
+    const [error, setError]         = useState<string | null>(null);
+    const scrollContainerRef        = useRef<HTMLDivElement>(null);
+    const toast                     = useRef<Toast>(null);
+    const navigate                  = useNavigate();
+    const { addItem }               = useCart();
 
     const MAX_PRODUCTS_DISPLAY = 5;
-    const SCROLL_AMOUNT = 300;
+    const SCROLL_AMOUNT        = 280;
 
     const loadProducts = useCallback(async () => {
         try {
@@ -47,7 +206,6 @@ export const Carrossel: React.FC<CarrosselProps> = ({ categoryId, title, product
     }, [categoryId]);
 
     useEffect(() => {
-        // Se os produtos vieram via prop, não busca da API
         if (productsProp) {
             setProducts(productsProp.slice(0, MAX_PRODUCTS_DISPLAY));
             setLoading(false);
@@ -67,34 +225,21 @@ export const Carrossel: React.FC<CarrosselProps> = ({ categoryId, title, product
         });
     }, []);
 
-    const handleProductClick = useCallback((productId?: number) => {
-        if (!productId) return;
-        navigate(`/productsdetail/${productId}`);
-    }, [navigate]);
-
-    const handleAddToCart = useCallback((e: React.MouseEvent, productId?: number) => {
-        e.stopPropagation();
-        if (!productId) return;
-        console.log("Adicionar ao carrinho - Produto ID:", productId);
-    }, []);
-
-    const getImagePath = useCallback((product: IProduct): string => {
-        return resolveProductImage(product.imagePath, product.name);
-    }, []);
-
-    const formatPrice = useCallback((price: number): string => {
-        return price.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }, []);
-
-    const truncateName = useCallback((name: string, maxLength = 60): string => {
-        return name.length > maxLength ? `${name.substring(0, maxLength)}...` : name;
-    }, []);
+    const handleAddToCart = (product: IProduct) => {
+        addItem(product, 1);
+        toast.current?.show({
+            severity: "success",
+            summary: "Adicionado",
+            detail: `${product.name} adicionado ao carrinho.`,
+            life: 2000,
+        });
+    };
 
     if (loading) {
         return (
-            <div className="w-full my-12 px-4">
-                <h2 className="text-2xl font-semibold text-gray-200 mb-4">{title}</h2>
-                <div className="flex justify-center items-center h-64">
+            <div style={{ width: "100%", padding: "0 16px" }}>
+                <h2 style={{ color: "#e5e7eb", fontSize: "22px", fontWeight: 700, marginBottom: "16px" }}>{title}</h2>
+                <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "260px" }}>
                     <ProgressSpinner style={{ width: "50px", height: "50px" }} strokeWidth="4" />
                 </div>
             </div>
@@ -103,10 +248,10 @@ export const Carrossel: React.FC<CarrosselProps> = ({ categoryId, title, product
 
     if (error) {
         return (
-            <div className="w-full my-12 px-4">
-                <h2 className="text-2xl font-semibold text-gray-200 mb-4">{title}</h2>
-                <div className="text-center text-red-400 p-8 bg-gray-800 rounded-lg border border-red-800">
-                    <i className="pi pi-exclamation-triangle text-4xl mb-3" />
+            <div style={{ width: "100%", padding: "0 16px" }}>
+                <h2 style={{ color: "#e5e7eb", fontSize: "22px", fontWeight: 700, marginBottom: "16px" }}>{title}</h2>
+                <div style={{ textAlign: "center", color: "#f87171", padding: "32px", background: "#1f2937", borderRadius: "12px", border: "1px solid #7f1d1d" }}>
+                    <i className="pi pi-exclamation-triangle" style={{ fontSize: "32px", marginBottom: "12px", display: "block" }} />
                     <p>{error}</p>
                 </div>
             </div>
@@ -116,20 +261,26 @@ export const Carrossel: React.FC<CarrosselProps> = ({ categoryId, title, product
     if (products.length === 0) return null;
 
     return (
-        <div className="w-full my-12 px-4">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-100">{title}</h2>
-                <div className="flex gap-2">
+        <div style={{ width: "100%", padding: "0 16px" }}>
+            <Toast ref={toast} />
+
+            {/* Cabeçalho da seção */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                <div>
+                    <h2 style={{ color: "#f3f4f6", fontSize: "22px", fontWeight: 700, margin: 0 }}>{title}</h2>
+                    <div style={{ height: "3px", width: "40px", background: "#3b82f6", borderRadius: "2px", marginTop: "6px" }} />
+                </div>
+                <div style={{ display: "flex", gap: "8px" }}>
                     <Button
                         icon="pi pi-chevron-left"
-                        className="p-button-rounded p-button-text hover:bg-gray-700"
+                        className="p-button-rounded p-button-text"
                         onClick={() => scroll("left")}
                         style={{ color: "#9ca3af" }}
                         aria-label="Rolar para esquerda"
                     />
                     <Button
                         icon="pi pi-chevron-right"
-                        className="p-button-rounded p-button-text hover:bg-gray-700"
+                        className="p-button-rounded p-button-text"
                         onClick={() => scroll("right")}
                         style={{ color: "#9ca3af" }}
                         aria-label="Rolar para direita"
@@ -137,62 +288,27 @@ export const Carrossel: React.FC<CarrosselProps> = ({ categoryId, title, product
                 </div>
             </div>
 
-            <div className="relative">
-                <div
-                    ref={scrollContainerRef}
-                    className="flex gap-6 overflow-x-auto pb-4 scroll-smooth"
-                    style={{ scrollbarWidth: "thin", scrollbarColor: "#4b5563 #1f2937" }}
-                >
-                    {products.map((product) => (
-                        <div
-                            key={product.id}
-                            style={{ width: "220px", flexShrink: 0 }}
-                            className="bg-gray-800 rounded-xl shadow-lg hover:shadow-2xl cursor-pointer hover:scale-[1.02] transition-all duration-300 border border-gray-700 hover:border-blue-500 overflow-hidden"
-                            onClick={() => handleProductClick(product.id)}
-                        >
-                            {/* Imagem com tamanho fixo e object-cover para sem distorção */}
-                            <div style={{ width: "220px", height: "180px", flexShrink: 0 }}>
-                                <img
-                                    src={getImagePath(product)}
-                                    alt={product.name}
-                                    style={{ width: "220px", height: "180px", objectFit: "cover", display: "block" }}
-                                    onError={(e) => {
-                                        (e.target as HTMLImageElement).src = SVG_PLACEHOLDER;
-                                    }}
-                                    loading="lazy"
-                                />
-                            </div>
-
-                            {/* Informações do produto */}
-                            <div className="p-4">
-                                <div style={{ height: "48px", overflow: "hidden", marginBottom: "12px" }}>
-                                    <h3
-                                        className="text-gray-100 font-medium text-sm leading-tight"
-                                        style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}
-                                        title={product.name}
-                                    >
-                                        {product.name}
-                                    </h3>
-                                </div>
-
-                                <div className="flex items-center justify-between" style={{ borderTop: "1px solid #374151", paddingTop: "10px" }}>
-                                    <span className="text-blue-400 font-bold text-lg">
-                                        R$ {formatPrice(product.price)}
-                                    </span>
-                                    <Button
-                                        icon="pi pi-shopping-cart"
-                                        className="p-button-rounded p-button-sm"
-                                        style={{ background: "#3b82f6", border: "none", width: "34px", height: "34px" }}
-                                        onClick={(e) => handleAddToCart(e, product.id)}
-                                        tooltip="Adicionar ao carrinho"
-                                        tooltipOptions={{ position: "top" }}
-                                        aria-label={`Adicionar ${product.name} ao carrinho`}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+            {/* Carrossel */}
+            <div
+                ref={scrollContainerRef}
+                style={{
+                    display: "flex",
+                    gap: "16px",
+                    overflowX: "auto",
+                    paddingBottom: "12px",
+                    scrollBehavior: "smooth",
+                    scrollbarWidth: "thin",
+                    scrollbarColor: "#4b5563 #1f2937",
+                }}
+            >
+                {products.map((product) => (
+                    <ProductCard
+                        key={product.id}
+                        product={product}
+                        onView={() => navigate(`/productsdetail/${product.id}`)}
+                        onAddToCart={() => handleAddToCart(product)}
+                    />
+                ))}
             </div>
         </div>
     );

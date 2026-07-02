@@ -2,23 +2,13 @@ package br.edu.utfpr.pb.pw44s.server.dto;
 
 import lombok.*;
 
-import java.math.BigDecimal;
-
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ProductDTO {
+public class FormaPgtoDTO {
 
     private Long id;
-
-    private String name;
-
+    private String type;
     private String description;
-
-    private BigDecimal price;
-
-    private String imagePath;
-
-    private CategoryDTO category;
 }

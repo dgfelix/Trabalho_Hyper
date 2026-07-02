@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -83,6 +84,9 @@ public class AddressController {
         if (existing == null) {
             return ResponseEntity.notFound().build();
         }
+        if (!existing.getUser().getUsername().equals(userDetails.getUsername())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
 
         existing.setCity(dto.getCity());
         existing.setStreet(dto.getStreet());
@@ -94,7 +98,15 @@ public class AddressController {
     /** Remove um endereço pelo ID. */
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable Long id,
+                       @AuthenticationPrincipal UserDetails userDetails) {
+        Address existing = addressService.findOne(id);
+        if (existing == null) {
+            return;
+        }
+        if (!existing.getUser().getUsername().equals(userDetails.getUsername())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
         addressService.delete(id);
     }
 

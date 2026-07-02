@@ -10,6 +10,8 @@ import { ProductListPage } from "@/pages/product-list";
 import { ProductFormPage } from "@/pages/product-form";
 import { ProductDetailPage } from "@/pages/product-detail";
 import { CartPage } from "@/pages/cart";
+import { PaymentPage } from "@/pages/payment";
+import { OrdersPage } from "@/pages/orders";
 
 export function AppRoutes() {
   return (
@@ -34,9 +36,8 @@ export function AppRoutes() {
 
         {/* protected routes */}
         <Route element={<RequireAuth />}>
-
-
-
+          <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/orders" element={<OrdersPage />} />
         </Route>
       </Route>
     </Routes>

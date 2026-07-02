@@ -3,8 +3,8 @@ package br.edu.utfpr.pb.pw44s.server.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -20,7 +20,7 @@ public class Order {
     private Long id;
 
     /** Data do pedido preenchida automaticamente. */
-    private Date date;
+    private LocalDateTime date;
 
     /** Soma bruta dos itens (preço × quantidade), sem desconto. */
     private BigDecimal valorInicial;

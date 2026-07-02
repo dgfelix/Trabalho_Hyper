@@ -1,6 +1,7 @@
 package br.edu.utfpr.pb.pw44s.server.dto;
 
 import lombok.*;
+import java.math.BigDecimal;
 
 @Getter @Setter
 @NoArgsConstructor
@@ -13,7 +14,7 @@ public class ItensOrderDTO {
 
     private String productName;
 
-    private Double price;
+    private BigDecimal price;
     
     private int quantity;
 }

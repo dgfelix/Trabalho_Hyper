@@ -12,48 +12,53 @@ const TopMenu: React.FC = () => {
     const { authenticated, handleLogout } = useAuth();
     const { totalItems } = useCart();
 
-    // Menu items - apenas quando autenticado
-    const menuItems: MenuItem[] = authenticated
+    // Itens sempre visíveis (públicos)
+    const publicItems: MenuItem[] = [
+        {
+            label: "Home",
+            icon: "pi pi-home",
+            command: () => navigate("/"),
+        },
+        {
+            label: "Produtos",
+            icon: "pi pi-tags",
+            command: () => navigate("/products"),
+        },
+    ];
+
+    // Itens exclusivos para usuários autenticados
+    const authItems: MenuItem[] = authenticated
         ? [
             {
-                label: "Home",
-                icon: "pi pi-home",
-                command: () => navigate("/"),
+                label: "Meus Pedidos",
+                icon: "pi pi-receipt",
+                command: () => navigate("/orders"),
             },
             {
-                label: "Categorias",
-                icon: "pi pi-box",
+                label: "Admin",
+                icon: "pi pi-cog",
                 items: [
                     {
-                        label: "Listar",
-                        icon: "pi pi-list",
-                        command: () => navigate("/categories"),
+                        label: "Categorias",
+                        icon: "pi pi-box",
+                        items: [
+                            { label: "Listar",   icon: "pi pi-list", command: () => navigate("/categories") },
+                            { label: "Novo",     icon: "pi pi-plus", command: () => navigate("/categories/new") },
+                        ],
                     },
                     {
-                        label: "Novo",
-                        icon: "pi pi-plus",
-                        command: () => navigate("/categories/new"),
-                    },
-                ],
-            },
-            {
-                label: "Produtos",
-                icon: "pi pi-tags",
-                items: [
-                    {
-                        label: "Listar",
-                        icon: "pi pi-list",
-                        command: () => navigate("/products"),
-                    },
-                    {
-                        label: "Novo",
-                        icon: "pi pi-plus",
-                        command: () => navigate("/products/new"),
+                        label: "Produtos",
+                        icon: "pi pi-tags",
+                        items: [
+                            { label: "Novo Produto", icon: "pi pi-plus", command: () => navigate("/products/new") },
+                        ],
                     },
                 ],
             },
         ]
         : [];
+
+    const menuItems: MenuItem[] = [...publicItems, ...authItems];
 
     // Handler para logout
     const handleLogoutClick = () => {

@@ -17,11 +17,17 @@ const signup = async (user: IUserRegister): Promise<IResponse> => {
       data: data.data,
     };  
   } catch (err: any) {
+    const apiError = err.response?.data;
+    // Extrai a primeira mensagem de validationErrors se existir
+    const validationErrors: Record<string, string> | undefined = apiError?.validationErrors;
+    const firstError = validationErrors
+      ? Object.values(validationErrors)[0]
+      : undefined;
     response = {
-      status: 400,
+      status: err.response?.status || 400,
       success: false,
-      message: "Usuário não pode ser cadastrado",
-      data: err.response.data,
+      message: firstError || "Usuário não pode ser cadastrado",
+      data: apiError,
     };
   }
   return response;

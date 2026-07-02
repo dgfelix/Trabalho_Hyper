@@ -17,8 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -59,7 +59,7 @@ public class OrderServiceImpl extends CrudServiceImpl<Order, Long>
         Order order = Order.builder()
                 .user(user)
                 .address(address)
-                .date(new Date())
+                .date(LocalDateTime.now())
                 .formaPgto(orderDTO.getFormaPgto())
                 .itens(new ArrayList<>())
                 .build();
@@ -73,7 +73,7 @@ public class OrderServiceImpl extends CrudServiceImpl<Order, Long>
             ItensOrder item = ItensOrder.builder()
                     .order(order)
                     .product(product)
-                    .price(product.getPrice().doubleValue())
+                    .price(product.getPrice())
                     .quantity(itemDTO.getQuantity())
                     .build();
 
@@ -82,7 +82,7 @@ public class OrderServiceImpl extends CrudServiceImpl<Order, Long>
 
         // 5. Calcula valorInicial (soma bruta dos itens)
         BigDecimal valorInicial = order.getItens().stream()
-                .map(item -> BigDecimal.valueOf(item.getPrice())
+                .map(item -> item.getPrice()
                         .multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 

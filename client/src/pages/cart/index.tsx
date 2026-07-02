@@ -92,8 +92,8 @@ export const CartPage: React.FC = () => {
             toast.current?.show({ severity: "warn", summary: "Atenção", detail: "Selecione um endereço de entrega.", life: 3000 });
             return;
         }
-        // Navega para a futura página de pagamento
-        navigate("/payment");
+        const selectedAddress = addresses.find((a) => a.id === selectedAddressId) ?? null;
+        navigate("/payment", { state: { selectedAddress, selectedAddressId } });
     };
 
     // -----------------------------------------------------------------------

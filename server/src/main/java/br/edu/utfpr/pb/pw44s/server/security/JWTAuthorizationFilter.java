@@ -53,12 +53,17 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
                             .verify(token.replace(SecurityConstants.TOKEN_PREFIX, ""))
                             .getSubject();
             if (username != null) {
-                // com posse do username é verificado se ele existe na base de dados
-                User user = (User) authService.loadUserByUsername(username);
-                // o principal deve ser o objeto User (UserDetails), não apenas o username String
-                // assim @AuthenticationPrincipal UserDetails funciona corretamente nos controllers
-                return new UsernamePasswordAuthenticationToken(user, null,
-                        user.getAuthorities());
+                try {
+                    // com posse do username é verificado se ele existe na base de dados
+                    User user = (User) authService.loadUserByUsername(username);
+                    // o principal deve ser o objeto User (UserDetails), não apenas o username String
+                    // assim @AuthenticationPrincipal UserDetails funciona corretamente nos controllers
+                    return new UsernamePasswordAuthenticationToken(user, null,
+                            user.getAuthorities());
+                } catch (Exception e) {
+                    // token aponta para usuário inexistente — tratar como não autenticado
+                    return null;
+                }
             }
         }
         return null;

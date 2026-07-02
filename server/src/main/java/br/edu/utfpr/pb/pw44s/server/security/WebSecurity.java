@@ -66,6 +66,7 @@ public class WebSecurity {
                 // permite leitura pública de categorias e produtos (sem login)
                 .requestMatchers(antMatcher(HttpMethod.GET, "/categories/**")).permitAll()
                 .requestMatchers(antMatcher(HttpMethod.GET, "/products/**")).permitAll()
+                .requestMatchers(antMatcher(HttpMethod.GET, "/formas-pgto/**")).permitAll()
                 //as demais rotas da aplicação só podem ser acessadas se o usuário estiver autenticado  
                 .anyRequest().authenticated()
         );

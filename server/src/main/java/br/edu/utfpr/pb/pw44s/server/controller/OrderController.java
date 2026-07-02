@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,10 +54,14 @@ public class OrderController {
     /**Retorna os detalhes de um pedido específico pelo ID.
      * GET /orders/{id}*/
     @GetMapping("{id}")
-    public ResponseEntity<OrderDTO> findById(@PathVariable Long id) {
+    public ResponseEntity<OrderDTO> findById(@PathVariable Long id,
+                                             @AuthenticationPrincipal UserDetails userDetails) {
         Order order = orderService.findOne(id);
         if (order == null) {
             return ResponseEntity.notFound().build();
+        }
+        if (!order.getUser().getUsername().equals(userDetails.getUsername())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
         return ResponseEntity.ok(toDTO(order));
     }

@@ -3,6 +3,7 @@ package br.edu.utfpr.pb.pw44s.server.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "tb_itensOrder")
@@ -25,7 +26,7 @@ public class ItensOrder {
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product product;
 
-    private Double price;
+    private BigDecimal price;
 
     private int quantity;
 }
